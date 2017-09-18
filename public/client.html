@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<htm lang="es">
+
+    <head>
+
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <title>Cliente Streming</title>
+        <meta charset="utf-8" />
+    </head>
+
+    <body>
+        <div>
+            <h1>Hola Bienvenidos a mi streming</h1>
+        </div>
+        <p>Esta pagina recibe en tiempo real</p>
+        <img id="streaming">
+    </body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        (function (d, io) {
+            'use strict';
+            var io = io();
+            io.on('play', (image) => {
+                d.querySelector('#streaming').src = image;
+            })
+
+        })(document, io)
+    </script>
+</htm>

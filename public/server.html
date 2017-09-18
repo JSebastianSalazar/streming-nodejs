@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<htm lang="es">
+
+    <head>
+
+        <!-- Compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <title>Servidor Streming</title>
+        <meta charset="utf-8" />
+    </head>
+
+    <body>
+        <div>
+            <h1>Creando streming</h1>
+        </div>
+        <p>
+            Esta página transmite en tiempo real el streming de la càmara web
+        </p>
+        <div>
+            <video id="video"></video>
+
+        </div>
+        <canvas id="canvas" width="1280" height="720"></canvas>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            'use strict';
+
+            (function (d, w, n, io) {
+
+                'use strict';
+                var io = io();
+                let startCamara = false;
+                let video = d.querySelector("#video");
+                let canvas = d.querySelector("#canvas");
+                let context = canvas.getContext('2d');
+
+                n.streming = (
+                    n.getUserMedia ||
+                    n.webkitGetUserMedia ||
+                    n.mozGetUserMedia ||
+                    n.msGetUserMedia
+                )
+                n.streming({
+                    video: true,
+                    audio: true
+                }, (stream) => {
+                    startCamara = true;
+                    video.src = w.URL.createObjectURL(stream);
+                }, (err) => {
+                    alert('error al acceder a la camara web' + err);
+                });
+                // no se agrega a una propiedad se necesita que sea una accion se encapsula
+                // una accion
+                w.playVideo = ((callBack) => {
+                    return w.requestAnimationFrame ||
+                        w.webkitRequestAnimationFrame ||
+                        w.mozRequestAnimationFrame ||
+                        w.msRequestAnimationFrame ||
+                        function (callBack) {
+                            w.setTimeout(cb, 1000 / 1);
+                        }
+                })()
+
+                function streamvideo(context, canvas, video) {
+                    let outputStream = canvas.toDataURL('image/jpg', .2);
+                    context.drawImage(video, 0, 0);
+                    if (startCamara)
+                        io.emit('streaming', outputStream);
+                    playVideo(() => {
+                        //cada segundo en tiempo real mande la imagen 
+                        streamvideo(context, canvas, video);
+                    })
+                }
+
+                w.addEventListener('load', () => {
+                    video.autoplay = true;
+                    video.style.display = 'none';
+                    streamvideo(context, canvas, video)
+                });
+            })(document, window, navigator, io)
+        </script>
+    </body>
+</htm>
